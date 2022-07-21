@@ -1,6 +1,9 @@
 <section id="how-work" class="pt-50 pb-50 section--bg">
 
-        <h5>LOAN CALCULATOR</h5>
+       {{-- <h5>LOAN CALCULATOR</h5>--}}
+    <div class="section-header text-center">
+        <h2 class="section-title">LOAN CALCULATOR</h2>
+    </div>
         <br>
 
     <div class="container">
