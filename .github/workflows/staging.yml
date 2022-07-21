@@ -15,7 +15,7 @@ jobs:
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
-          server: ftp.samkirkland.com
+          server: ftp.myedulend.com
           username:  ${{ secrets.ftp_username }}
           password: ${{ secrets.ftp_password }}
           server-dir: /public_html/staging.myedulend.com/
