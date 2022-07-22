@@ -67,7 +67,7 @@
                                 <!-- Loan Amount -->
                                 <div class="row mt-3">
                                     <div class="col mx-4 mt-3">
-                                        <h6>Inetrest Rate(%)</h6>
+                                        <h6>Interest Rate(%)</h6>
                                     </div>
 
                                     <div class="col mx-1">
@@ -99,5 +99,7 @@
 
 
 
+</section>
 
-</section>>
+<script src="{{ asset('nice/js/jquery.min.js') }}"></script>
+
