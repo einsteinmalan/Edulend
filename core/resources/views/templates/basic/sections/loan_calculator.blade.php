@@ -1,3 +1,7 @@
+
+
+
+
 <section id="how-work" class="pt-50 pb-50 section--bg">
 
        {{-- <h5>LOAN CALCULATOR</h5>--}}
@@ -17,9 +21,9 @@
             </div>
             <div class="col-lg">
                 <div class="contact-form-wrapper" >
-                    <div class="shadow p-3 mb-5 bg-white rounded">
+                    <div class="shadow p-3 mb-5 bg-white rounded" id="ticketTable">
 
-                        <form method="POST" action="">
+                        <form method="GET" action="">
                         @csrf
 
                         <!-- Loan Type -->
@@ -34,7 +38,7 @@
                                     <div class="col mx-1">
                                         <div class="form-group">
 
-                                            <input type="email" class="form-control" id="loan_type" aria-describedby="loantypeHelp" placeholder="Amount">
+                                            <input type="text" class="entry_point form-control" id="loan_amount" aria-describedby="loantypeHelp" placeholder="Amount">
 
                                         </div>
                                     </div>
@@ -81,11 +85,29 @@
                                 </div>
 
 
+                                <!-- Monthly repayment Amount -->
+                                <div class="row mt-3">
+                                    <div class="col mx-4 mt-0">
+                                        <h6>Monthly repayment (GHS)</h6>
+                                    </div>
+
+                                    <div class="col mx-1">
+                                        <div class="form-group">
+
+                                            <input type="email" class="repayment_amt form-control" id="amt_repayment" aria-describedby="loantypeHelp" placeholder="3%" disabled>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
                                 <br>
                                 <!-- Loan Application Submitt -->
                                 <div class="flex items-center justify-end mt-4">
 
-                                    <button type="submit" class="ml-4 btn btn-primary">Calculate</button>
+                                   {{-- <button type="submit" class="ml-4 btn btn-primary">Calculate</button>--}}
+                                    <input type="button"  class="btnSelect ml-4 btn btn-primary" onclick="calculateMonthly();" value="Calculate">
                                 </div>
                             </div>
 
@@ -97,9 +119,42 @@
         </div>
     </div>
 
-
-
 </section>
 
+<script type="text/javascript">
+
+    function calculateMonthly(){
+        let num_month = document.getElementById("tenure_months").value;
+        let amt_borrow = document.getElementById("loan_amount").value;
+        document.getElementById("amt_repayment").value= (amt_borrow/num_month) + (amt_borrow/num_month)*0.03;
+
+    }
+
+</script>
+
 <script src="{{ asset('nice/js/jquery.min.js') }}"></script>
+
+
+
+
+<script>
+
+   /* $("#ticketTable").on('click','.btnSelect',function() {
+
+        var myModal = $('#ediiTickettype');
+
+        var currentRow = $(this).closest("div");
+
+
+        var amount_trx = currentRow.find('div.entry_point').html();
+
+
+
+        $('#repayment_amt', myModal).val(colInvoice);
+
+
+
+        return false;
+    })*/
+</script>
 
