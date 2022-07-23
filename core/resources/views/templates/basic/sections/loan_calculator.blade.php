@@ -94,7 +94,7 @@
                                     <div class="col mx-1">
                                         <div class="form-group">
 
-                                            <input type="email" class="repayment_amt form-control" id="amt_repayment" aria-describedby="loantypeHelp" placeholder="0" disabled>
+                                            <input type="email" class="repayment_amt form-control" id="amt_repayment" aria-describedby="loantypeHelp" placeholder="0`" disabled>
 
                                         </div>
                                     </div>
