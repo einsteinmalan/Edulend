@@ -13,33 +13,37 @@
                             <div class="wave-shape">
                                 <img src="{{ asset($activeTemplateTrue. 'images/elements/wave.png') }}" alt="img">
                             </div>
-                            <h4 class="plan-name">{{ __($plan->name) }}</h4>
+                            <h4 class="plan-name text-dark">{{ __($plan->name) }}</h4>
                             <div class="plan-price">
-                                {{ getAmount($plan->per_installment) }}% <sub>/{{ $plan->installment_interval }} @lang('Days')</sub>
+                                  <!-- convert installment interval from days to months -->
+                                  @php $pm = $plan->installment_interval;
+                                    $months = floor($pm/30);
+                                @endphp
+                                {{ getAmount($plan->per_installment) }}% <sub>( {{ $plan->installment_interval }} @lang('Days') )</sub>
                             </div>
                         </div>
                         <div class="plan-card__body text-center">
                             <ul class="plan-feature-list">
                                 <li class="d-flex flex-wrap justify-content-between">
-                                    <span>@lang('Take Minimum')</span>
+                                    <span>@lang('Minimum Amount')</span>
                                     {{ $general->cur_sym }}{{ showAmount($plan->minimum_amount) }}
                                 </li>
 
                                 <li class="d-flex flex-wrap justify-content-between">
-                                    <span>@lang('Take Maximum')</span>
+                                    <span>@lang('Maximum Amount')</span>
                                     {{ $general->cur_sym }}{{ showAmount($plan->maximum_amount) }}
                                 </li>
 
                                 <li class="d-flex flex-wrap justify-content-between">
                                     <span>
-                                        @lang('Per Installment')
+                                        @lang('Interest Rate')
                                     </span>
                                     {{ getAmount($plan->per_installment) }}%
                                 </li>
 
                                 <li class="d-flex flex-wrap justify-content-between">
                                     <span>
-                                        @lang('Installment Interval')
+                                        @lang('Installment Period')
 
                                     </span>
                                     {{ $plan->installment_interval }} @lang('Days')
@@ -47,7 +51,7 @@
 
                                 <li class="d-flex flex-wrap justify-content-between">
                                     <span>
-                                        @lang('Total Installment')
+                                        @lang('Total Installments')
                                     </span>
                                     {{ $plan->total_installment }}
                                 </li>

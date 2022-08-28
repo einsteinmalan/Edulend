@@ -8,8 +8,9 @@
                 <div class="card-body">
                     <form action="" method="post" enctype="multipart/form-data">
                         @csrf
-
-                        <h3 class="text-center mb-3">@lang('Be sure before apply')</h3>
+                        
+                        <a href="{{ route('user.loan.plans') }}" class="text-left text-warning">Go Back</a>
+                        <h3 class="text-center mb-3">@lang('Loan Application Confimation ')</h3>
 
                         <ul class="caption-list-two">
                             <li>
@@ -17,11 +18,11 @@
                                 <span class="value">@lang($plan->name)</span>
                             </li>
                             <li>
-                                <span class="caption">@lang('Loan Amount')</span>
+                                <span class="caption">@lang('Requested Amount')</span>
                                 <span class="value">{{ $general->cur_sym.showAmount($amount) }}</span>
                             </li>
                             <li>
-                                <span class="caption">@lang('Total Installment')</span>
+                                <span class="caption">@lang('Total Installment Period')</span>
                                 <span class="value">{{ $plan->total_installment }}</span>
                             </li>
 
@@ -30,13 +31,17 @@
                             @endphp
 
                             <li>
-                                <span class="caption">@lang('Per Installment')</span>
-                                <span class="value">{{ $general->cur_sym.showAmount($per_intallment) }}</span>
+                                <span class="caption">@lang('Monthly Installment Payments')</span>
+                                <span class="value">{{ $general->cur_sym.showAmount($payMonth) }}</span> 
+                                <!-- <span class="value">{{ $general->cur_sym.showAmount($per_intallment) }}</span> -->
                             </li>
 
                             <li class="fw-bold text--danger">
-                                <span class="caption">@lang('You Need To Pay')</span>
-                                <span class="value">{{ $general->cur_sym.showAmount($per_intallment * $plan->total_installment) }}</span>
+                                <!-- <span class="caption">@lang('You Need To Pay')</span> -->
+                                <!-- <span class="value">{{ $general->cur_sym.showAmount($per_intallment * $plan->total_installment) }}</span> -->
+                                <span class="caption">@lang('Total Amount to Pay:')</span>
+                                <span class="value">{{ $general->cur_sym.showAmount($totAmount) }}</span>
+                                
                             </li>
 
                         </ul>
@@ -91,7 +96,7 @@
                                 @endforeach
                             @endif
 
-                            <button type="submit" class="btn btn--base w-100">@lang('Apply')</button>
+                            <button type="submit" class="btn btn--base w-100">@lang('CONFIRM YOUR LOAN')</button>
                     </form>
                 </div>
             </div>

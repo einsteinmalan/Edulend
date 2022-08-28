@@ -688,7 +688,7 @@ class UserActionController extends Controller
         return redirect()->route('user.loan.apply.form');
     }
 
-    public function loanForm()
+    public function loanForm1()
     {
         $loan = session()->get('loan');
         if(!$loan) return redirect()->route('user.loan.plans');
@@ -700,8 +700,27 @@ class UserActionController extends Controller
         return view($this->activeTemplate . 'user.loan.form', compact('pageTitle', 'plan', 'amount', 'requiredInfo'));
     }
 
+    public function loanForm()
+    {
+        $loan = session()->get('loan');
+        if(!$loan) return redirect()->route('user.loan.plans');
 
-    public function loanFormSubmit(Request $request)
+        $plan   = $loan['plan'];
+        $amount = $loan['amount'];
+
+        // invoke methods  to calculate loan monthly installments and total amount payment
+        $monthlyPayableAmt = $this->calcLoanMonthlyPayment($amount,$plan->per_installment,$plan->total_installment);
+        $totalPayment = $this->calcTotalPayments($monthlyPayableAmt,$plan->total_installment);
+        $payMonth = $monthlyPayableAmt; $totAmount = $totalPayment;
+        $requiredInfo = json_decode($plan->required_information);
+        $pageTitle = 'Apply For Loan';
+        
+        // create session
+        session()->put('loanDetails', ['amt'=>$amount, 'payInstall'=>$payMonth, 'totPayable'=>$totAmount]);
+        return view($this->activeTemplate . 'user.loan.form', compact('pageTitle', 'plan', 'amount', 'requiredInfo', 'payMonth','totAmount'));
+    }
+
+    public function loanFormSubmit1(Request $request)
     {
         $loan   = session()->get('loan');
         if(!$loan) return redirect()->route('user.loan.plans');
@@ -789,11 +808,107 @@ class UserActionController extends Controller
 
     }
 
+    public function loanFormSubmit(Request $request)
+    {
+        $loan   = session()->get('loan');
+        $loan_details = session()->get('loanDetails');
+
+        if(!$loan) return redirect()->route('user.loan.plans');
+
+        $plan   = $loan['plan'];
+        $amount = $loan['amount'];
+        $plan = LoanPlan::active()->where('id', $plan->id)->firstOrFail();
+
+        //Check Loan Limit Amount
+        if($plan->minimum_amount > $amount || $amount > $plan->maximum_amount ){
+            $notify[]=['error','Please follow the minium & maximum limit for this plan'];
+            return redirect()->route('user.loan.plans')->withNotify($notify);
+        }
+
+        $requiredInfo = json_decode($plan->required_information);
+        $userDetails = array();
+
+        if($requiredInfo){
+            $validation_rule    = [];
+            $userDetails        = [];
+
+            foreach ($requiredInfo as $item) {
+                $field = snakeCase($item->field_name);
+                if($item->type == 'textarea'){
+                    $validation_rule[$field]  = [$item->validation, 'max:600'];
+                }elseif($item->type == 'file'){
+                    $validation_rule[$field]  = [$item->validation, new FileTypeValidate(['jpg','jpeg','png'])];
+                }else{
+                    $validation_rule[$field]  = [$item->validation, 'max:255'];
+                }
+                $userDetails[$field]['type']    = $item->type;
+                $userDetails[$field]['value']   = $request->$field;
+            }
+            $request->validate($validation_rule);
+
+            $directory = date("Y")."/".date("m")."/".date("d");
+            $path = imagePath()['verify']['loan']['path'].'/'.$directory;
+
+            foreach ($userDetails as $key=>$item) {
+                if($item['type'] == 'file'){
+                    try {
+                        $userDetails[$key]['value'] =  $directory.'/'.uploadImage($userDetails[$key]['value'], $path);
+                    } catch (\Exception $exp) {
+                        $notify[] = ['error', 'Could not upload your ' . $key];
+                        return back()->withNotify($notify)->withInput();
+                    }
+                }
+            }
+        }
+
+        $user               = auth()->user();
+        $userLoan           = new UserLoan();
+        $monthPayable       = $loan_details['payInstall'];
+        $totalPayable       = $loan_details['totPayable'];
+        // $per_installment    = $amount * $plan->per_installment / 100;
+
+        $userLoan->user_id              = $user->id;
+        $userLoan->plan_id              = $plan->id;
+        $userLoan->trx                  = getTrx();
+        $userLoan->amount               = $amount;
+        $userLoan->per_installment      = $monthPayable;
+        $userLoan->user_details         = json_encode($userDetails);
+        $userLoan->installment_interval = $plan->installment_interval;
+        $userLoan->total_installment    = $plan->total_installment;
+        $userLoan->final_amount         = getAmount($totalPayable );
+        // $userLoan->final_amount         = getAmount($per_installment * $plan->total_installment);
+        $userLoan->save();
+
+        $shortCodes = [
+            'trx'                   => $userLoan->trx,
+            'amount'                => $amount,
+            'plan_name'             => $plan->name,
+            'per_installment'       => showAmount($monthPayable),
+            // 'per_installment'       => showAmount($per_installment),
+            'installment_interval'  => $plan->installment_interval,
+            'total_installment'     => $plan->total_installment,
+            'final_amount'          => showAmount($totalPayable)
+            // 'final_amount'          => showAmount($per_installment * $plan->total_installment)
+        ];
+
+        // make new notification instance
+        $adminNotification = new AdminNotification();
+        $adminNotification->user_id = $user->id;
+        $adminNotification->title = 'A new loan request has been submitted by '.$user->username;
+        $adminNotification->click_url = urlPath('admin.loan.details',$userLoan->id);
+        $adminNotification->save();
+
+        notify($user, 'LOAN_REQUEST', $shortCodes);
+
+        session()->forget('loan');
+        $notify[]=['success','Loan request sent successfully'];
+        return redirect()->route('user.loan.list')->withNotify($notify);
+
+    }
 
     /*
      * Withdraw Operation
-     */
-
+    */
     public function withdrawMoney()
     {
         $withdrawMethod = WithdrawMethod::where('status', 1)->get();
@@ -854,8 +969,6 @@ class UserActionController extends Controller
         session()->put('wtrx', $withdraw->trx);
         return redirect()->route('user.withdraw.preview');
     }
-
-
 
     public function userAction(Request $request)
     {
@@ -1281,6 +1394,26 @@ class UserActionController extends Controller
         }elseif($action->type == 'withdraw'){
             return redirect()->route('user.withdraw.history');
         }
+    }
+
+    
+    // function to calculate loan monthly payments amount
+    public function calcLoanMonthlyPayment(int $loanAmount, int $interest, int $numOfMonths) {
+
+	    $monthlyPayment = 0; $div = 1200;
+
+        $rate = ($interest / 1200);
+        $rate = round($rate, 7);
+
+        $monthlyPayment = ($rate + $rate / (pow($rate + 1, $numOfMonths) - 1)) * $loanAmount;
+        $monthlyPayment = round($monthlyPayment, 2);
+
+        return $monthlyPayment;
+	}
+
+    // calculate total loan payable amount
+    function calcTotalPayments(float $intMonth, int $noMonth) {
+        return ($intMonth * $noMonth);
     }
 
 }
