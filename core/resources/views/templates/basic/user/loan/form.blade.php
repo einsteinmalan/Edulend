@@ -27,6 +27,7 @@
                             </li>
 
                             @php
+                                <!-- not used, abandoned -->
                                 $per_intallment = $amount * $plan->per_installment / 100;
                             @endphp
 

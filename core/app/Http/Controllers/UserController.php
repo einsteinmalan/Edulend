@@ -31,10 +31,12 @@ class UserController extends Controller
     public function home()
     {
         $pageTitle = 'Dashboard';
+
         $user = auth()->user();
         $widget['total_deposit']    = Deposit::where('user_id', $user->id)
-                                        ->where('status', 1)
-                                        ->sum('amount');
+                                    ->where('status', 1)
+                                    ->sum('amount');
+
         $widget['total_fdr']        = UserFdr::where('user_id', $user->id)->count();
         $widget['total_withdraw']   = Withdrawal::approved()->where('user_id', $user->id)->sum('amount');
         $widget['total_loan']       = UserLoan::approved()->where('user_id', $user->id)->count();
@@ -52,7 +54,6 @@ class UserController extends Controller
                                     ->latest()
                                     ->limit(5)
                                     ->get();
-
 
         $emptyMessage = 'No Data Found';
         return view($this->activeTemplate . 'user.dashboard', compact('pageTitle', 'user', 'widget', 'credits', 'debits','emptyMessage'));

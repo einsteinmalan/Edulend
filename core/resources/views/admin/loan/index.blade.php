@@ -48,6 +48,7 @@
                                         <td data-label="@lang('Installment Amount')">
                                             <span>{{ $general->cur_sym.showAmount($loan->per_installment) }}</span>
                                             <span class="d-block text--info">
+                                                <!-- @lang("per") {{ ($loan->installment_interval / 3 )}} @lang("days") -->
                                                 @lang("per") {{ $loan->installment_interval }} @lang("days")
                                             </span>
                                         </td>

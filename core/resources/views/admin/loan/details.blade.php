@@ -113,7 +113,7 @@
 
             <div class="card b-radius--10 overflow-hidden box--shadow1">
                 <div class="card-body">
-                    <h5 class="card-title border-bottom pb-2">@lang('User Information')</h5>
+                    <h5 class="card-title border-bottom pb-2">@lang('Actions')</h5>
 
                     @if($loan->user_details)
                         @foreach(json_decode($loan->user_details) as $key => $item)
@@ -164,7 +164,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@lang('Confirmation Alert')</h5>
+                    <h5 class="modal-title">@lang('Confirmation')</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -173,10 +173,11 @@
                     @csrf
                     <input type="hidden" name="id">
                     <div class="modal-body">
+                        <p> <b>Please Note!</b> <br>There is <span class='text-danger font-weight-bold'>2%</span> one-time Loan processing fee. </p>
                         <p>@lang('Are you sure to approve this loan?')</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn--dark" data-dismiss="modal">@lang('Close')</button>
+                        <button type="button" class="btn btn--dark" data-dismiss="modal">@lang('Cancel')</button>
                         <button type="submit" class="btn btn--success">@lang('Approve')</button>
                     </div>
                 </form>
@@ -189,7 +190,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@lang('Confirmation Alert')</h5>
+                    <h5 class="modal-title">@lang('Confirmation')</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

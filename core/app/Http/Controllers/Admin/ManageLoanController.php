@@ -246,15 +246,25 @@ class ManageLoanController extends Controller
 
     public function approve(Request $request)
     {
+        // validate request
         $request->validate([
             'id'        => 'required|integer',
         ]);
+        
+        // get and update loan state
         $loan = UserLoan::where('id', $request->id)->with('user', 'plan')->firstOrFail();
         $loan->status = 1;
         $loan->next_installment_date	= Carbon::now()->addDays($loan->installment_interval);
         $loan->save();
+
+        // calculate 2% processing fees on loan
+        $proc_fees = $this->calculateProcessingFees($loan->amount);
+        $amountGranted = $loan->amount - $proc_fees;
+
+        //update user loan balance
         $user = $loan->user;
-        $user->balance += getAmount($loan->amount);
+        // $user->balance += getAmount($loan->amount);
+        $user->balance += getAmount($amountGranted);
         $user->save();
 
         $transaction                = new Transaction();
@@ -315,4 +325,9 @@ class ManageLoanController extends Controller
         return back()->withNotify($notify);
     }
 
+    function calculateProcessingFees(int $amount) {
+        $processing_fee = 2; // processing fee percent
+        return ($processing_fee / 100) * $amount;
+
+    }
 }
